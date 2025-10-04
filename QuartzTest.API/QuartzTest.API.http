@@ -1,0 +1,6 @@
+@QuartzTest.API_HostAddress = http://localhost:5067
+
+GET {{QuartzTest.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
