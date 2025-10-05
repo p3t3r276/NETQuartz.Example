@@ -4,11 +4,11 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddQuartz(q => {
+builder.Services.AddQuartz(q =>
+{
+    // Register a job
     var jobKey = new JobKey("myJob", "myGroup");
     q.AddJob<MyJob>(opts => opts.WithIdentity(jobKey));
 
@@ -22,11 +22,7 @@ builder.Services.AddQuartz(q => {
 });
 
 // Add the Quartz.NET hosted service
-builder.Services.AddQuartzHostedService(options =>
-{
-    // Ensure jobs complete gracefully on shutdown
-    options.WaitForJobsToComplete = true;
-});
+builder.Services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
 
 var app = builder.Build();
 
