@@ -7,7 +7,9 @@ public class MyJob : IJob
 {
     public Task Execute(IJobExecutionContext context)
     {
-        System.Console.WriteLine($"Job executed at {DateTime.Now} {CultureInfo.CurrentCulture} - Next run: {context.Trigger.GetNextFireTimeUtc()}");
+        var link = context.MergedJobDataMap.GetString("verificationLink");
+
+        Console.WriteLine($"Job executed at {DateTime.Now} {CultureInfo.CurrentCulture} - Next run: {context.Trigger.GetNextFireTimeUtc()}, data: {link}");
         return Task.CompletedTask;
     }
 }

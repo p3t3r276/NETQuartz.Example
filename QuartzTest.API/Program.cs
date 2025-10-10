@@ -9,16 +9,16 @@ builder.Services.AddOpenApi();
 builder.Services.AddQuartz(q =>
 {
     // Register a job
-    var jobKey = new JobKey("myJob", "myGroup");
-    q.AddJob<MyJob>(opts => opts.WithIdentity(jobKey));
+    // var jobKey = new JobKey("myJob", "myGroup");
+    // q.AddJob<MyJob>(opts => opts.WithIdentity(jobKey));
 
     // Create a trigger for the job
-    q.AddTrigger(opts => opts
-        .ForJob(jobKey)
-        .WithIdentity("myJobTrigger")
-        .WithSimpleSchedule(x => x
-            .WithIntervalInSeconds(10)
-            .RepeatForever()));
+    // q.AddTrigger(opts => opts
+    //     .ForJob(jobKey)
+    //     .WithIdentity("myJobTrigger")
+    //     .WithSimpleSchedule(x => x
+    //         .WithIntervalInSeconds(10)
+    //         .RepeatForever()));
 });
 
 // Add the Quartz.NET hosted service
@@ -53,6 +53,32 @@ app.MapGet("/weatherforecast", () =>
     return forecast;
 })
 .WithName("GetWeatherForecast");
+
+app.MapGet("/jobs", async (ISchedulerFactory schedulerFactory) =>
+{
+    var verificationLink = "this is a link";
+    IScheduler scheduler = await schedulerFactory.GetScheduler();
+
+    var jobData = new JobDataMap()
+    {
+        { "Email", "admin@admin.com" },
+        { "verificationLink", verificationLink }
+    };
+
+    IJobDetail job = JobBuilder.Create<MyJob>()
+        .UsingJobData(jobData)
+        .Build();
+
+    ITrigger trigger = TriggerBuilder.Create()
+        .WithIdentity("trigger-send-verification", "email-jobs")
+        .ForJob(job)
+        .StartNow()
+        .Build();
+
+    await scheduler.ScheduleJob(job, trigger);
+
+    return Results.Ok("Job scheduled");
+});
 
 app.Run();
 
